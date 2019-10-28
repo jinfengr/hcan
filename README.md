@@ -37,13 +37,13 @@ $ pip install -r requirements.txt
 ### Run
 - Run on TrecQA/Quora/TwitterURL datasets:
 ```
-CUDA_VISIBLE_DEVICES=0 python -u train.py -d TrecQA
+CUDA_VISIBLE_DEVICES=0 python -u train.py --dataset TrecQA -j hcan
 ```
-The path of best model and output predictions will be shown in the log. Default parameters should work reasonably well.
+The path of best model and output predictions will be shown in the log. 
 
 - Run on Twitter datasets:
 ```
-CUDA_VISIBLE_DEVICES=0 python -u train.py -d TrecQA -t trec-2013
+CUDA_VISIBLE_DEVICES=0 python -u train.py --dataset TrecQA -t trec-2013 -j hcan
 ```
 Note: you might need around ~40GB memory to create the twitter dataset (because of the large size of IDF weights). Please file a issue if you have any problem in creating the dataset.
 
@@ -63,11 +63,19 @@ $ ./trec_eval.8.1/trec_eval data/twitter/qrels.microblog2011-2014.txt \
 ### Command line parameters
 | option                   | input format |   default   | description |
 |--------------------------|--------------|-------------|-------------|
-| `-t`   | [trec-2011, trec-2012, trec-2013, trec-2014] | trec-2013 | test set, only needed for twitter datasets|
 | `-l`   | [true, false]       | false     | whether to load pre-created dataset (set to true when data is ready) |
+| `-j` | [matching, biattention, hcan]       | matching     | attention choices, matching for relevance matching in Sec. 2.2, biattention for semantic matching in Sec. 2.3, hcan for the complete hcan model |
+| `-e` | [deepconv, wideconv, bilstm]       | deepconv     | encoder choices described in Sec. 2.1 |
+| `-w` | [none, query]       | none     | whether to include IDF weighting, none for not include, query for include |
+| `--nb_layers`    | [1, n)    | 256 | number of convolutional or BiLSTM layers |
+| `--nb_filters`    | [1, n)    | 256 | number of convolutional filters or BiLSTM hidden dim |
+| `--model_option`| [complete, word-only]       | complete | what input sources to use, complete for using both word and character-level ngram representations, word-only for using only word representations  |
+| `--conv_option` | [normal, ResNet]       | normal     | convolutional model, normal or ResNet |
+| `--co-attention`    | [BiDAF, ESIM]   | BiDAF | different biattention implementations |
+| `--highway` | [true, false] | false | whether to include highway layer |
+| `-t`   | [trec-2011, trec-2012, trec-2013, trec-2014] | trec-2013 | test set, only needed for twitter datasets|
 | `--load_model`     | [true, false]       | false     | whether to load pre-trained model |
 | `-b`   | [1, n)    | 64 | batch size | 
-| `-n`    | [1, n)    | 256 | number of convolutional filters |
 | `-d`    | [0, 1]    | 0.1 | dropout rate | 
 | `-o`    | [sgd, adam, rmsprop] | sgd | optimization method | 
 | `--lr`  | [0, 1]    | 0.05 | learning rate |
@@ -75,6 +83,3 @@ $ ./trec_eval.8.1/trec_eval data/twitter/qrels.microblog2011-2014.txt \
 | `--trainable` | [true, false] | true | whether to train word embeddings | 
 | `--val_split` | (0, 1) | 0.15 | percentage of validation set sampled from training set | 
 | `-v`| [0, 1, 2] | 1 | verbose (for logging), 0 for silent, 1 for interactive, 2 for per-epoch logging |
-| `--conv_option` | [normal, ResNet]       | normal     | convolutional model, normal or ResNet |
-| `--model_option`| [complete, word-url]       | complete | what input sources to use, complete for MP-HCNN, word-url for only modeling query-tweet (word) and query-url (char)  |
-
