@@ -67,7 +67,7 @@ $ ./trec_eval.8.1/trec_eval data/twitter/qrels.microblog2011-2014.txt \
 | `-j` | [matching, biattention, hcan]       | matching     | attention choices, matching for relevance matching in Sec. 2.2, biattention for semantic matching in Sec. 2.3, hcan for the complete hcan model |
 | `-e` | [deepconv, wideconv, bilstm]       | deepconv     | encoder choices described in Sec. 2.1 |
 | `-w` | [none, query]       | none     | whether to include IDF weighting, none for not include, query for include |
-| `--nb_layers`    | [1, n)    | 256 | number of convolutional or BiLSTM layers |
+| `--nb_layers`    | [1, n)    | 5 | number of convolutional or BiLSTM layers |
 | `--nb_filters`    | [1, n)    | 256 | number of convolutional filters or BiLSTM hidden dim |
 | `--model_option`| [complete, word-only]       | complete | what input sources to use, complete for using both word and character-level ngram representations, word-only for using only word representations  |
 | `--conv_option` | [normal, ResNet]       | normal     | convolutional model, normal or ResNet |
