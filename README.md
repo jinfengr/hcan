@@ -54,12 +54,6 @@ Note: you might need around ~40GB memory to create the twitter dataset (because 
 ```
 This command will save all the outputs under tune_logs folder. 
 
-### Evaluate with trec_eval
-Example with twitter pred_file:
-```
-$ ./trec_eval.8.1/trec_eval data/twitter/qrels.microblog2011-2014.txt \
-                            {pred_file}
-```
 
 ### Command line parameters
 | option                   | input format |   default   | description |
