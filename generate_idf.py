@@ -18,7 +18,7 @@ def idf(freq, total_freq):
 
 
 def generate_idf(base_dir):
-    freq_dict = {"word": defaultdict(int),
+    freq_dict = {"unigram": defaultdict(int),
                  "bigram": defaultdict(int),
                  "trigram": defaultdict(int)}
 
@@ -32,7 +32,7 @@ def generate_idf(base_dir):
                     for i, line in enumerate(f):
                         tokens = split_sent(normalize_unicode(line.strip()), "word")
                         for j in range(len(tokens)):
-                            freq_dict["word"][tokens[j].lower()] += 1
+                            freq_dict["unigram"][tokens[j].lower()] += 1
                             #freq_dict["word"][ps.stem(tokens[j])] += 1
                             if j >= 1:
                                 bigram = " ".join([token.lower() for token in tokens[j - 1:j + 1]])
@@ -54,7 +54,7 @@ def normalize_idf(base_dir, freq_dict, total_word_freq):
     for key in freq_dict:
         max_freq[key], min_freq[key] = max(freq_dict[key].values()), min(freq_dict[key].values())
         max_idf[key], min_idf[key] = idf(min_freq[key], total_word_freq), idf(max_freq[key], total_word_freq)
-    print(max_idf, min_idf)
+    #print(max_idf, min_idf)
 
     for key in freq_dict:
         for token in freq_dict[key].keys():
@@ -81,11 +81,11 @@ if __name__ == "__main__":
     dataset = getattr(options, "dataset")
     base_dir = ""
     if dataset == "Quora":
-        base_dir = "data/quora/"
+        base_dir = "data/Quora/"
     elif dataset == "TrecQA":
         base_dir = "data/TrecQA/"
     elif dataset == "TwitterURL":
-        base_dir == "data/TwitterURL/"
+        base_dir = "data/TwitterURL/"
     else:
         print("Invalid dataset")
         exit(0)

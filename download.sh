@@ -7,14 +7,17 @@ if [ ! -f "gdrive-*" ]; then
   echo "Install gdrive done."
 fi
 
-cd data; mkdir word2vec
+cd data
+if [ ! -d "word2vec" ]; then
+  mkdir word2vec
+fi
 cd word2vec
 
+echo ""
 echo ">>>Download word2vec from Google Drive..."
 gdrive download 0B7XkCwpI5KDYNlNUTTlSS21pQmM
 
-chmod +x *.sh
-
+echo ""
 echo ">>>Download IDF weights for twitter..."
 cd ../twitter
 gdrive download 0B1EhxQ7GBJdsZTVmcFVMcDY1RWM
@@ -24,9 +27,7 @@ gdrive download 0B1EhxQ7GBJdsbXdROGZQYzV5cFU
 tar -xf collection_ngram_idf.json.tar
 rm collection_ngram_idf.json.tar
 
-echo ">>>Build IDF weights for [TrecQA, Quora, Twitter-URL]"
-./generate_idf.sh
-
+echo ""
 echo ">>>Build trec_eval tool..."
 cd ../..
 tar -xf trec_eval.8.1.tar.gz
@@ -35,4 +36,4 @@ cd trec_eval.8.1
 make --ignore-errors 2> make.log
 rm make.log
 
-echo "Done."
+echo ">>>Done."

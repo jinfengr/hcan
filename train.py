@@ -35,7 +35,8 @@ from attention_model import create_attention_model
 
 
 def evaluate(predictions_file, qrels_file):
-    pargs = shlex.split("/bin/sh run_eval.sh '{}' '{}'".format(predictions_file, qrels_file))
+    print(predictions_file, qrels_file)
+    pargs = shlex.split("/bin/sh run_eval.sh '{}' '{}'".format(qrels_file, predictions_file))
     p = subprocess.Popen(pargs, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     pout, perr = p.communicate()
 
@@ -55,7 +56,7 @@ def config_dataset(args):
     dataset_name = args['dataset']
     val_name, val_set, with_url = None, None, False
     if dataset_name == 'twitter':
-        args['raw_data'] = "../data/twitter"
+        args['raw_data'] = "data/twitter"
         train_name, test_name = args['train'], args['test']
         if train_name == 'train_all':
             train_set = ['trec-2011', 'trec-2012', 'trec-2013', 'trec-2014']
@@ -92,8 +93,8 @@ def print_dataset(mode, dataset, vocab_inv):
         print(key, dataset[key].shape)
         if "weight" in key:
             print(key, dataset[key][0][:2])
-        #elif "mask" in key:
-        #    print(key, dataset[key][0])
+        elif "mask" in key:
+            print(key, dataset[key][0])
         elif "word" in key:
             print(dataset[key][0])
             print(key, unsplit_query(dataset[key][0], "word", vocab_inv["word"]))
@@ -153,9 +154,9 @@ def get_default_args():
             "conv_option": "normal",
             # change the base path to your path correspondingly
             "experimental_data": "./experimental-data",
-            "raw_data": "../data/twitter/",
-            "qrels_file": "../data/twitter/qrels.all.txt",
-            "base_embed_path": "../data/word2vec/GoogleNews-vectors-negative300.bin.gz",
+            "raw_data": "data/twitter/",
+            "qrels_file": "data/twitter/qrels.all.txt",
+            "base_embed_path": "data/word2vec/GoogleNews-vectors-negative300.bin.gz",
             # "base_embed_path": "../data/word2vec/tweet_vector_0401.bin",
             "external_feat": False,
             "norm_weight": False,
@@ -178,7 +179,7 @@ def set_args(args, options):
         if arg in args and getattr(options, arg) is not None:
             args[arg] = getattr(options, arg)
     if args['embedding'] == 'glove':
-        args['base_embed_path'] = "../data/word2vec/gensim.glove.840B.300d.txt"
+        args['base_embed_path'] = "data/word2vec/gensim.glove.840B.300d.txt"
 
 
 def create_option_parser():
@@ -217,8 +218,8 @@ def main(options):
     mode, dataset_name = args['mode'], args['dataset']
 
     # default setting
-    args['raw_data'] = "../data/%s/" % args['dataset']
-    args['qrels_file'] = "../data/%s/qrels.all.txt" % args['dataset']
+    args['raw_data'] = "data/%s/" % args['dataset']
+    args['qrels_file'] = "data/%s/qrels.all.txt" % args['dataset']
     print_args(args)
 
     # get train/val/test names for specific dataset

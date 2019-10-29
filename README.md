@@ -15,23 +15,24 @@ If you are using this code or dataset, please kindly cite the paper below:
 
 ### Requirements
 - Python 2.7
-- Tensorflow or Theano (tested on TF 1.4.1)
+- Tensorflow (tested on 1.9.0)
 - Keras (tested on 2.1.5)
 
 ### Install
 - Download our repo:
 ```
-git clone https://github.com/Jeffyrao/hcan.git
+git clone https://github.com/jinfengr/hcan.git
 cd hcan
-```
-- Install [gdrive](https://github.com/prasmussen/gdrive)
-- Download required data and word2vec:
-```
-$ chmod +x download.sh; ./download.sh
 ```
 - Install Tensorflow and Keras dependency:
 ```
 $ pip install -r requirements.txt
+```
+- Install [gdrive](https://github.com/prasmussen/gdrive)
+- Download required data and word2vec:
+```
+$ chmod +x *.sh; ./download.sh
+$ ./generate_idf.sh
 ```
 
 ### Run
@@ -41,17 +42,17 @@ CUDA_VISIBLE_DEVICES=0 python -u train.py --dataset TrecQA -j hcan
 ```
 The path of best model and output predictions will be shown in the log. 
 
-- Run on Twitter datasets:
+- Run on Twitter datasets (test on `trec-2013`):
 ```
 CUDA_VISIBLE_DEVICES=0 python -u train.py --dataset TrecQA -t trec-2013 -j hcan
 ```
 Note: you might need around ~40GB memory to create the twitter dataset (because of the large size of IDF weights). Please file a issue if you have any problem in creating the dataset.
 
-- Parameter sweep to find the best parameter set:
+- Parameter sweep to find the best parameter set (make sure the dataset is created before sweep):
 ```
-./param_sweep.sh TrecQA join 0 &
+./param_sweep.sh TrecQA hcan 0 &
 ```
-This command will save all the outputs under tune-logs folder. 
+This command will save all the outputs under tune_logs folder. 
 
 ### Evaluate with trec_eval
 Example with twitter pred_file:

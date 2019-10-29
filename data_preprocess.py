@@ -12,7 +12,7 @@ from nltk.stem import PorterStemmer
 import gensim
 
 from utils import split_sent, normalize_unicode, get_word_vector, unsplit_query, invert_dict, merge_two_dicts
-from attention_model import DSSM_NUM_NEGS, ATTENTION_DEEP_LEVEL
+from attention_model import ATTENTION_DEEP_LEVEL
 
 PAD_WORD_INDEX = 0
 OOV_WORD_INDEX = 1
@@ -117,13 +117,17 @@ def inject_word_weight(query_word_input, vocab_inv, weights):
     unigram_found, bigram_found, unigram_total = 0.0, 0.0, 0.0
     for i in range(num_samples):
         for j in range(max_query_len):
-            # inject word weight
+            # inject unigram weight
             #stem_word = ps.stem(vocab_inv[query_word_input[i][j]])
             word = vocab_inv[query_word_input[i][j]]
-            unigram_total += 1
-            if word in weights['unigram']:
-                unigram_found += 1
-                query_word_weight[i][0][j] = weights['unigram'][word]
+            if query_word_input[i][j] == PAD_WORD_INDEX:
+                # pad word weight is assigned 0
+                query_word_weight[i][0][j] = 0  
+            else:
+                unigram_total += 1
+                if word in weights['unigram']:
+                    unigram_found += 1
+                    query_word_weight[i][0][j] = weights['unigram'][word]
 
             # inject bigram weight
             if j > 0 and query_word_input[i][j-1] != PAD_WORD_INDEX:
@@ -143,6 +147,8 @@ def inject_word_weight(query_word_input, vocab_inv, weights):
                 if unigram in weights['unigram']:
                     bigram_found += 1
                     query_word_weight[i][1][j] = weights['unigram'][unigram]
+            else:
+                query_word_weight[i][1][j] = 0
 
     print("Unigram found/total: %.3f (%d/%d)" %
           (unigram_found / unigram_total, unigram_found, unigram_total))
@@ -233,7 +239,7 @@ def gen_data(path, datasets, vocab, test_vocab, is_train, max_query_len, max_doc
     all_url_list, all_ids_list, all_sim_list = [], [], []
     for data_name in datasets: # there can be multiple data sets combined as the train or test data
         data_folder = "%s/%s" % (path, data_name)
-        print('load dataset %s' % data_name)
+        print('creating dataset %s' % data_name)
         t = time.time()
         q1_word_list, max_q1_word_len = read_sentences("%s/a.toks" % data_folder, vocab, is_train,
                                                        "word", test_vocab=test_vocab)
@@ -243,7 +249,7 @@ def gen_data(path, datasets, vocab, test_vocab, is_train, max_query_len, max_doc
                                                          "3gram", test_vocab=test_vocab)
         q2_3gram_list, max_q2_3gram_len = read_sentences("%s/b.toks" % data_folder, vocab, is_train,
                                                          "3gram", test_vocab=test_vocab)
-        url_list = [], max_url_len_dataset = 0
+        url_list,  max_url_len_dataset = [], 0
         if os.path.exists("%s/url.txt" % data_folder):
             url_list, max_url_len_dataset = read_urls("%s/url.txt" % data_folder, vocab, is_train, '3gram')
         ids_list = read_metadata("%s/id.txt" % data_folder)
@@ -270,7 +276,7 @@ def gen_data(path, datasets, vocab, test_vocab, is_train, max_query_len, max_doc
         print("q1 max_3gram_len: %d, q2 max_3gram_len: %d, len limit: (%d, %d)" %
               (max_q1_3gram_len, max_q2_3gram_len, max_query_len['3gram'], max_doc_len['3gram']))
         print('max_url_len: %d, limit: %d' % (max_url_len_dataset, max_url_len['url']))
-        print('load dataset done: %d' % (time.time()-t))
+        print('creating dataset done: %d' % (time.time()-t))
 
     # question padding
     data = {'sim': np.array(all_sim_list), 'id': np.array(all_ids_list)}
@@ -304,7 +310,9 @@ def gen_data(path, datasets, vocab, test_vocab, is_train, max_query_len, max_doc
         weights = json.load(open("%s/collection_word_idf.json" % path, "r"))
         merge_vocab = merge_two_dicts(vocab['word'], test_vocab['word'])
         vocab_inv = invert_dict(merge_vocab)
+        print('inject query IDF weights')
         data['query_word_weight'] = inject_word_weight(data['query_word_input'], vocab_inv, weights)
+        print('inject doc IDF weights')
         data['doc_word_weight'] = inject_word_weight(data['doc_word_input'], vocab_inv, weights)
         data['overlap_feat'] = compute_overlap_feat(data['query_word_input'], data['doc_word_input'],
                                                     vocab_inv, weights)
