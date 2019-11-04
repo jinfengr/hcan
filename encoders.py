@@ -14,11 +14,12 @@ from highway_layer import HighwayLayer
 
 
 def add_deep_conv_layer(query_emb, doc_emb, nb_layers, layer_name, nb_filters, kernel_size, padding,
-                        dropout_rate=0.1, activation='relu', strides=1, conv_option="normal"):
+                        dropout_rate=0.1, activation='relu', strides=1, conv_option="normal",
+                        base_layer_idx=0):
     output_list, conv_output_list = [[query_emb, doc_emb]], [[query_emb, doc_emb]]
     for i in range(nb_layers):
         conv_layer = Convolution1D(filters=nb_filters, kernel_size=kernel_size, padding=padding,
-                                   activation=activation, strides=strides, name="%s-%d" % (layer_name, i))
+                                   activation=activation, strides=strides, name="%s-%d" % (layer_name, i+base_layer_idx))
         max_pooling_layer = GlobalMaxPooling1D()
         #normlize_layer = BatchNormalization()
         dropout_layer = Dropout(dropout_rate)
@@ -34,11 +35,11 @@ def add_deep_conv_layer(query_emb, doc_emb, nb_layers, layer_name, nb_filters, k
 
 
 def add_wide_conv_layer(query_emb, doc_emb, nb_layers, layer_name, nb_filters, kernel_size, padding,
-                        dropout_rate=0.1, activation='relu', strides=1, conv_option="normal"):
+                        dropout_rate=0.1, activation='relu', strides=1, conv_option="normal", base_layer_idx=0):
     output_list, conv_output_list = [[query_emb, doc_emb]], []
     for i in range(nb_layers):
         conv_layer = Convolution1D(filters=nb_filters, kernel_size=(kernel_size-1)*i+kernel_size, padding=padding,
-                                   activation=activation, strides=strides, name="%s-%d" % (layer_name, i))
+                                   activation=activation, strides=strides, name="%s-%d" % (layer_name, i+base_layer_idx))
         dropout_layer = Dropout(dropout_rate)
         query_conv_tensor, doc_conv_tensor = conv_layer(query_emb), conv_layer(doc_emb)
         query_dropout_tensor = dropout_layer(query_conv_tensor)

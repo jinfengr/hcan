@@ -212,8 +212,8 @@ def create_attention_model(max_query_len, max_doc_len, max_url_len, vocab_size, 
     external_feat, url_char_weight = None, None
     if weighting == 'query':
         query_word_weight = Input(shape=(nb_layers, max_query_len['word'], ), name="query_word_weight")
-        #query_char_weight = Input(shape=(nb_layers, max_query_len['3gram'],), name="query_3gram_weight")
-        input_list.extend([query_word_weight])
+        query_char_weight = Input(shape=(nb_layers, max_query_len['3gram'],), name="query_3gram_weight")
+        input_list.extend([query_word_weight, query_char_weight])
     elif weighting == 'doc':
         query_word_weight = Input(shape=(nb_layers, max_query_len['word'],), name="query_word_weight")
         query_char_weight = Input(shape=(nb_layers, max_query_len['3gram'],), name="query_3gram_weight")
@@ -362,18 +362,29 @@ def create_attention_model(max_query_len, max_doc_len, max_url_len, vocab_size, 
             if encoder_option == "deepconv" or encoder_option == "bilstm":
                 char_output_list, char_conv_output_list = add_deep_conv_layer(
                     query_embedding, char_embedding, nb_layers, "deep-char-conv", nb_filters, 4, "same",
-                    dropout_rate, strides=1, conv_option=conv_option)
+                    dropout_rate, strides=1, conv_option=conv_option, base_layer_idx=j)
             elif encoder_option == "wideconv":
                 char_output_list, char_conv_output_list = add_wide_conv_layer(
                     query_embedding, char_embedding, nb_layers, "wide-char-conv", nb_filters, 4, "same",
-                    dropout_rate, strides=1, conv_option=conv_option)
+                    dropout_rate, strides=1, conv_option=conv_option, base_layer_idx=j)
             else:
                 print('invalid encoder choice!')
                 exit(0)
 
             for i in range(nb_layers):
                 query_embedding, char_embedding = char_output_list[i][0], char_output_list[i][1]
-                norm_sim2, max_sim2, mean_sim2 = add_attention_layer(query_embedding, char_embedding, "url-attention%d" % j, query_char_mask, char_mask, mask)
+                query_embedding, char_embedding = char_output_list[i][0], char_output_list[i][1]
+                if weighting == 'query':
+                    norm_sim2, max_sim2, mean_sim2 = add_attention_layer_with_query_weighting(
+                        query_embedding, char_embedding, "char-attention%d" % j, i, query_char_weight,
+                        query_char_mask, char_mask, mask)
+                elif weighting == 'doc':
+                    norm_sim2, max_sim2, mean_sim2 = add_attention_layer_with_doc_weighting(
+                        query_embedding, char_embedding, "char-attention%d" % j, i, query_char_weight, char_weight,
+                        max_query_len['3gram'], max_url_len['url'], query_char_mask, char_mask, mask)
+                else:
+                    norm_sim2, max_sim2, mean_sim2 = add_attention_layer(query_embedding, char_embedding, "char-attention%d" % j,
+                                                                         query_char_mask, char_mask, mask)
 
                 norm_sim_list.append(norm_sim2)
                 max_sim_list.append(max_sim2)

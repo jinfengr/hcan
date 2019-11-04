@@ -22,7 +22,7 @@ for weight in 'none' 'query'
 do
   for model in "word_only" "complete"
   do
-    for nb_layers in 5 6
+    for nb_layers in 4 5 6
     do
       for nb_filters in 256 128 512
       do

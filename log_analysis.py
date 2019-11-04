@@ -14,7 +14,7 @@ def main(filters, monitor):
                 return True
         return False
 
-    path = "emnlp_logs"
+    path = "tune_logs"
     monitors = {}
     for file in listdir(path):
         if filter_file(file, filters):

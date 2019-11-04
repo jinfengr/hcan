@@ -212,7 +212,7 @@ def compute_overlap_feat(query_word_input, doc_word_input, vocab_inv, weights):
                 total_word += 1.0
                 total_idf += float(weights['unigram'][word]) if word in weights['unigram'] else 1.0
         overlap_feats[i][0] = match / total_word
-        overlap_feats[i][1] = idf_match / total_idf
+        overlap_feats[i][1] = idf_match / max(total_idf, 0.1)
         overlap_feats[i][2] = bigram_match / max(total_word-1, 1)
         overlap_feats[i][3] = bigram_idf_match / max(total_bigram_idf, 0.01)
     return overlap_feats
@@ -304,6 +304,10 @@ def gen_data(path, datasets, vocab, test_vocab, is_train, max_query_len, max_doc
         data['doc_3gram_weight'] = inject_ngram_weight(data['doc_3gram_input'], vocab_inv, weights)
         data['url_3gram_weight'] = inject_ngram_weight(data['url_3gram_input'], vocab_inv, weights)
         print('ngram weight injection done: %d' % (time.time()-t))
+    else:
+        num_samples, max_query_len = data['query_3gram_input'].shape
+        data['query_3gram_weight'] = np.ones((num_samples, ATTENTION_DEEP_LEVEL, max_query_len))
+        data['doc_3gram_weight'] = np.ones((num_samples, ATTENTION_DEEP_LEVEL, data['doc_3gram_input'].shape[1]))
 
     if os.path.exists("%s/collection_word_idf.json" % path):
         t = time.time()
