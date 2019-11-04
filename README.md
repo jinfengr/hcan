@@ -44,7 +44,7 @@ The path of best model and output predictions will be shown in the log.
 
 - Run on Twitter datasets (test on `trec-2013`):
 ```
-CUDA_VISIBLE_DEVICES=0 python -u train.py --dataset TrecQA -t trec-2013 -j hcan
+CUDA_VISIBLE_DEVICES=0 python -u train.py --dataset twitter -t trec-2013 -j hcan
 ```
 Note: you might need around ~40GB memory to create the twitter dataset (because of the large size of IDF weights). Please file a issue if you have any problem in creating the dataset.
 
@@ -54,12 +54,6 @@ Note: you might need around ~40GB memory to create the twitter dataset (because 
 ```
 This command will save all the outputs under tune_logs folder. 
 
-### Evaluate with trec_eval
-Example with twitter pred_file:
-```
-$ ./trec_eval.8.1/trec_eval data/twitter/qrels.microblog2011-2014.txt \
-                            {pred_file}
-```
 
 ### Command line parameters
 | option                   | input format |   default   | description |
