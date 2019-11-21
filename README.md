@@ -4,10 +4,11 @@ This repo contains code and data for our paper published in [EMNLP'19](https://j
 ### Reference
 If you are using this code or dataset, please kindly cite the paper below:
 ```
-@article{rao2019hcan,
+@inproceedings{rao2019bridging,
   title={Bridging the Gap Between Relevance Matching and Semantic Matching for Short Text Similarity Modeling},
-  author={Rao, Jinfeng and Liu, Linqing and Tay, Yi and Yang, Wei and Shi, Peng and Lin, Jimmy}
-  journal={Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing},
+  author={Rao, Jinfeng and Liu, Linqing and Tay, Yi and Yang, Wei and Shi, Peng and Lin, Jimmy},
+  booktitle={Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)},
+  pages={5373--5384},
   year={2019}
 }
 ```
